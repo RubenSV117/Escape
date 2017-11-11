@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "PositionReport.h"
+#include "MoveDoor.h"
 #include "GameFramework/Actor.h"
 
 
 // Sets default values for this component's properties
-UPositionReport::UPositionReport()
+UMoveDoor::UMoveDoor()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -16,18 +16,19 @@ UPositionReport::UPositionReport()
 
 
 // Called when the game starts
-void UPositionReport::BeginPlay()
+void UMoveDoor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	FString objectName = GetOwner()->GetName();	
-	FString position = GetOwner()->GetTransform().GetLocation().ToString();
-	UE_LOG(LogTemp, Warning, TEXT("Inside BeginPlay(), attached to %s, at position %s"), *objectName, *position);
+	AActor* owner = GetOwner();
+	FRotator* rotation = new FRotator(0.f, 130.f, 0.f);
+	owner->SetActorRotation(*rotation);
+	// ...
+	
 }
 
 
 // Called every frame
-void UPositionReport::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UMoveDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 

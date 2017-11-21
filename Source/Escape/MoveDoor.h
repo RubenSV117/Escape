@@ -4,26 +4,32 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Engine/TriggerVolume.h"
 #include "MoveDoor.generated.h"
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPE_API UMoveDoor : public UActorComponent
 {
 	GENERATED_BODY()
-
-public:	
-	// Sets default values for this component's properties
+public:
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	UMoveDoor();
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	void OpenDoor();
 
-		
-	
+private:
+	UPROPERTY(VisibleAnywhere)
+		float _openAngle = 90.0f;
+
+	UPROPERTY(EditAnywhere)
+		ATriggerVolume* _pressurePlate;
+
+	UPROPERTY(EditAnywhere)
+		AActor* _actorThatOpens;
+
 };

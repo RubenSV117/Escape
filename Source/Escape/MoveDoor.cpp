@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 
 
+
 // Sets default values for this component's properties
 UMoveDoor::UMoveDoor()
 {
@@ -19,19 +20,23 @@ UMoveDoor::UMoveDoor()
 void UMoveDoor::BeginPlay()
 {
 	Super::BeginPlay();
-	AActor* owner = GetOwner();
-	FRotator* rotation = new FRotator(0.f, 130.f, 0.f);
-	owner->SetActorRotation(*rotation);
 	// ...
 	
 }
-
 
 // Called every frame
 void UMoveDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	if (_pressurePlate->IsOverlappingActor(_actorThatOpens))
+		OpenDoor();
+}
+
+void UMoveDoor::OpenDoor()
+{
+	AActor* owner = GetOwner();
+	FRotator* rotation = new FRotator(0.f, 130.f, 0.f);
+	owner->SetActorRotation(*rotation);
 }
 

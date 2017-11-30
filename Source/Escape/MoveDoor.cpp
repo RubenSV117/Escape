@@ -2,6 +2,7 @@
 
 #include "MoveDoor.h"
 #include "GameFramework/Actor.h"
+#include "Engine/World.h"
 
 
 
@@ -20,8 +21,9 @@ UMoveDoor::UMoveDoor()
 void UMoveDoor::BeginPlay()
 {
 	Super::BeginPlay();
-	// ...
 	
+	_actorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
+	owner = GetOwner();
 }
 
 // Called every frame
@@ -30,13 +32,25 @@ void UMoveDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (_pressurePlate->IsOverlappingActor(_actorThatOpens))
+	{
 		OpenDoor();
+		_timeLastEntered = GetWorld()->GetTimeSeconds();
+	}
+
+	if (_timeLastEntered != 0 && GetWorld()->GetTimeSeconds() - _timeLastEntered > _openTime)
+		CloseDoor();
+
+
+		
 }
 
 void UMoveDoor::OpenDoor()
+{	
+	owner->SetActorRotation(FRotator(0.f, _openAngle, 0.f));
+}
+
+void UMoveDoor::CloseDoor()
 {
-	AActor* owner = GetOwner();
-	FRotator* rotation = new FRotator(0.f, 130.f, 0.f);
-	owner->SetActorRotation(*rotation);
+	owner->SetActorRotation(FRotator(0.f, 90.f, 0.f));
 }
 

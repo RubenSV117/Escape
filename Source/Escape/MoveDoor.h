@@ -19,17 +19,23 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
 	void OpenDoor();
+	void CloseDoor();
 
 private:
+	AActor* owner;
+
 	UPROPERTY(VisibleAnywhere)
-		float _openAngle = 90.0f;
+		float _openAngle = 180.0f;
 
 	UPROPERTY(EditAnywhere)
 		ATriggerVolume* _pressurePlate;
 
-	UPROPERTY(EditAnywhere)
-		AActor* _actorThatOpens;
+	UPROPERTY(VisibleAnywhere)
+		float _timeLastEntered;
+
+	float _openTime = .3f;;
+
+	AActor* _actorThatOpens;
 
 };

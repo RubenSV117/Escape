@@ -3,29 +3,39 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "Components/ActorComponent.h"
 #include "Grabber.generated.h"
 
-UCLASS()
-class ESCAPE_API AGrabber : public APawn
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class ESCAPE_API UGrabber : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this pawn's properties
-	AGrabber();
+public:	
+	// Sets default values for this component's properties
+	UGrabber();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	
+	
 
 protected:
-	// Called when the game starts or when spawned
+	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:
+	UPROPERTY(EditAnywhere)
+		FVector _playerPosition;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	UPROPERTY(EditAnywhere)
+		FRotator _playerRotation;
 
+	UPROPERTY(EditAnywhere)
+	float _reach;
 	
+
+
+		
 	
 };

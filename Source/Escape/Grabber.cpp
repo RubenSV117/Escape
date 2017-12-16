@@ -23,6 +23,18 @@ void UGrabber::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp, Warning, TEXT("Grabber reporting for duty!"));
+	_reach = 100.f;
+
+	_physicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+
+	//if its still null, the address will be 0 and equal to false
+	if (_physicsHandle)
+	{
+
+	}
+
+	else
+		UE_LOG(LogTemp, Error, TEXT("%s does not have a UPhysicsHandleComponent attached"), *GetOwner()->GetName());
 	
 }
 
@@ -37,12 +49,34 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	//UE_LOG(LogTemp, Warning, TEXT("Position: %s  Rotation: %s"), *PlayerPosition.ToString(), *PlayerRotation.ToString());
 
-	FVector LineEnd;
+	//The end point of the debugLine
+	FVector lineEnd;
+
 	//.vector() makes an FRotator into a unit vector
-	LineEnd = _playerPosition + (_playerRotation.Vector() * _reach);
+	lineEnd = _playerPosition + (_playerRotation.Vector() * _reach);
 
-	DrawDebugLine(GetWorld(), _playerPosition, LineEnd, FColor(255, 0, 0), false, 0, 0, 1.f);
+	DrawDebugLine(GetWorld(), _playerPosition, lineEnd, FColor(255, 0, 0), false, 0, 0, 1.f);
 
-	// ...
+	//stores info about object hit
+	FHitResult hit;
+
+	//first param currently doesn't do anything, false that it uses the complex rendering mesh as collider
+	//GetOwner() to ignore the owner, the player, since the LineTrace originates from the player
+	FCollisionQueryParams traceParameters(FName(TEXT("")), false, GetOwner());
+
+	GetWorld()->LineTraceSingleByObjectType(
+		hit,
+		_playerPosition,
+		lineEnd,
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		traceParameters);
+	
+	
+	AActor* objectHit = hit.GetActor();
+
+	//if it hit an appropriate object
+	if(objectHit)
+		UE_LOG(LogTemp, Warning, TEXT("Can grab object: %s"), *objectHit->GetName());
+
 }
 

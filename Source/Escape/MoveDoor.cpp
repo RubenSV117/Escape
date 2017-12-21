@@ -4,7 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 
-
+#define OUT
 
 // Sets default values for this component's properties
 UMoveDoor::UMoveDoor()
@@ -16,13 +16,11 @@ UMoveDoor::UMoveDoor()
 	// ...
 }
 
-
 // Called when the game starts
 void UMoveDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	_actorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
 	owner = GetOwner();
 }
 
@@ -31,17 +29,14 @@ void UMoveDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (_pressurePlate->IsOverlappingActor(_actorThatOpens))
+	if (GetTotalMassInTrigger() >= massThreshold)
 	{
 		OpenDoor();
 		_timeLastEntered = GetWorld()->GetTimeSeconds();
 	}
 
 	if (_timeLastEntered != 0 && GetWorld()->GetTimeSeconds() - _timeLastEntered > _openTime)
-		CloseDoor();
-
-
-		
+		CloseDoor();	
 }
 
 void UMoveDoor::OpenDoor()
@@ -52,5 +47,21 @@ void UMoveDoor::OpenDoor()
 void UMoveDoor::CloseDoor()
 {
 	owner->SetActorRotation(FRotator(0.f, 90.f, 0.f));
+}
+
+float UMoveDoor::GetTotalMassInTrigger()
+{
+	float totalMass = 0;
+
+	TArray<AActor*> objectsInTrigger;
+
+	_pressurePlate->GetOverlappingActors(OUT objectsInTrigger);
+
+	for (AActor* actor : objectsInTrigger)
+	{
+		totalMass += actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+	}
+	
+	return totalMass;
 }
 

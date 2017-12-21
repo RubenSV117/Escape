@@ -25,29 +25,20 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT _playerPosition, OUT _playerRotation);
-
-	//The end point of the debugLine
-	//.vector() makes an FRotator into a unit vector
-	FVector lineEnd = _playerPosition + (_playerRotation.Vector() * _reach);
-
 	if (_physicsHandle->GrabbedComponent)
-	{
-		_physicsHandle->SetTargetLocation(lineEnd);
-	}
+		_physicsHandle->SetTargetLocation(GetReachLineEnd());
+	
 }
 
 //grabs an object within range if it has a physics body
 void UGrabber::Grab()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Object Grabbed"));
-
-	FHitResult hit = GetFirstObjectHit();
-	AActor* actorHit = hit.GetActor();
+	FHitResult hitResult = GetFirstObjectHit();
+	AActor* actorHit = hitResult.GetActor();
 
 	if (actorHit)
 	{
-		UPrimitiveComponent* componentToGrab = hit.GetComponent();
+		UPrimitiveComponent* componentToGrab = hitResult.GetComponent(); //gets the mesh in this case
 		FVector grabLocation = componentToGrab->GetOwner()->GetActorLocation();
 		_physicsHandle->GrabComponent(componentToGrab, NAME_None, grabLocation, true);
 	}
@@ -56,43 +47,28 @@ void UGrabber::Grab()
 //LineCasts and returns the first object hit with a physics body
 FHitResult UGrabber::GetFirstObjectHit()
 {
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT _playerPosition, OUT _playerRotation);
-	
-	//The end point of the debugLine
-	//.vector() makes an FRotator into a unit vector
-	FVector lineEnd = _playerPosition + (_playerRotation.Vector() * _reach);
-
-	//DrawDebugLine(GetWorld(), _playerPosition, lineEnd, FColor(255, 0, 0), false, 0, 0, 1.f);
-
 	//stores info about object hit
-	FHitResult hit;
+	FHitResult hitResult;
 
 	//first param currently doesn't do anything, false that it uses the complex rendering mesh as collider
 	//GetOwner() to ignore the owner, the player, since the LineTrace originates from the player
 	FCollisionQueryParams traceParameters(FName(TEXT("")), false, GetOwner());
 
 	GetWorld()->LineTraceSingleByObjectType(
-		OUT hit,
-		_playerPosition,
-		lineEnd,
+		OUT hitResult,
+		GetReachLineStart(),
+		GetReachLineEnd(),
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody), //only get the objects that have Simulate Physics checked
 		traceParameters);
 
+	AActor* objectHit = hitResult.GetActor();
 
-	AActor* objectHit = hit.GetActor();
-
-	//if it hit an appropriate object
-	if (objectHit)
-		UE_LOG(LogTemp, Warning, TEXT("Can grab object: %s"), *objectHit->GetName());
-
-	return hit;
+	return hitResult;
 }
 
 //releases grabbed object
 void UGrabber::Release()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Object Released"));
-
 	if(_physicsHandle->GrabbedComponent)
 		_physicsHandle->ReleaseComponent();
 }
@@ -102,13 +78,7 @@ void UGrabber::FindPhysicsHandle()
 {
 	_physicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
 
-	//if its still null, the address will be 0 and equal to false
-	if (_physicsHandle)
-	{
-
-	}
-
-	else
+	if (_physicsHandle == nullptr)
 		UE_LOG(LogTemp, Error, TEXT("%s does not have a UPhysicsHandleComponent attached"), *GetOwner()->GetName());
 }
 
@@ -117,15 +87,28 @@ void UGrabber::BindInput()
 {
 	_inputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 
+	//Bind the input actions
 	if (_inputComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("_inputComponent in grabber has been set"));
-
-		//Bind the input actions
 		_inputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
 		_inputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
 
 	else
 		UE_LOG(LogTemp, Warning, TEXT("_inputComponent has not been set"));
+}
+
+FVector UGrabber::GetReachLineStart()
+{
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT _playerPosition, OUT _playerRotation);
+
+	return _playerPosition;
+}
+
+FVector UGrabber::GetReachLineEnd()
+{
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT _playerPosition, OUT _playerRotation);
+
+	//The end point of the debugLine, .vector() makes an FRotator into a unit vector
+	return _playerPosition + (_playerRotation.Vector() * _reach);
 }

@@ -20,13 +20,28 @@ public:
 	// Sets default values for this component's properties
 	UGrabber();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	//Returns the first object hit within range that is a physics body
 	FHitResult GetFirstObjectHit();
+	
+	//Binds the first object hit to the physics grabber
 	void Grab();
+	
+	//Releases object grabbed
 	void Release();
+	
+	//Binds the physics handle 
 	void FindPhysicsHandle();
+	
+	//Binds player input
 	void BindInput();
 	
-
+	//current start of the reach range
+	FVector GetReachLineStart();
+	
+	//current end of the reach range
+	FVector GetReachLineEnd();
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

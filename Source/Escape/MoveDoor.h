@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Engine/TriggerVolume.h"
 #include "MoveDoor.generated.h"
 
@@ -21,6 +22,8 @@ protected:
 	virtual void BeginPlay() override;
 	void OpenDoor();
 	void CloseDoor();
+	//return total mass inside the trigger in Kg
+	float GetTotalMassInTrigger();
 
 private:
 	AActor* owner;
@@ -31,11 +34,12 @@ private:
 	UPROPERTY(EditAnywhere)
 		ATriggerVolume* _pressurePlate;
 
+	//minimum mass to trigger the door opening
+	UPROPERTY(EditAnywhere)
+		float massThreshold = 30;
+
 	UPROPERTY(VisibleAnywhere)
 		float _timeLastEntered;
 
-	float _openTime = .3f;;
-
-	AActor* _actorThatOpens;
-
+	float _openTime = .3f;
 };

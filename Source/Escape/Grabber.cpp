@@ -24,10 +24,9 @@ void UGrabber::BeginPlay()
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (_physicsHandle->GrabbedComponent)
-		_physicsHandle->SetTargetLocation(GetReachLineEnd());
 	
+	if (_physicsHandle && _physicsHandle->GrabbedComponent)
+			_physicsHandle->SetTargetLocation(GetReachLineEnd());
 }
 
 //grabs an object within range if it has a physics body
@@ -40,7 +39,10 @@ void UGrabber::Grab()
 	{
 		UPrimitiveComponent* componentToGrab = hitResult.GetComponent(); //gets the mesh in this case
 		FVector grabLocation = componentToGrab->GetOwner()->GetActorLocation();
-		_physicsHandle->GrabComponent(componentToGrab, NAME_None, grabLocation, true);
+		
+
+		if (_physicsHandle)
+			_physicsHandle->GrabComponent(componentToGrab, NAME_None, grabLocation, true);
 	}
 }
 
@@ -69,7 +71,7 @@ FHitResult UGrabber::GetFirstObjectHit()
 //releases grabbed object
 void UGrabber::Release()
 {
-	if(_physicsHandle->GrabbedComponent)
+	if (_physicsHandle && _physicsHandle->GrabbedComponent)
 		_physicsHandle->ReleaseComponent();
 }
 

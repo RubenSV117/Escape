@@ -22,6 +22,9 @@ void UMoveDoor::BeginPlay()
 	Super::BeginPlay();
 	
 	owner = GetOwner();
+
+	if (!_pressurePlate)
+		UE_LOG(LogTemp, Error, TEXT("%s does not have a trigger volume assigned"), *owner->GetName());
 }
 
 // Called every frame
@@ -30,23 +33,10 @@ void UMoveDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (GetTotalMassInTrigger() >= massThreshold)
-	{
-		OpenDoor();
-		_timeLastEntered = GetWorld()->GetTimeSeconds();
-	}
-
-	if (_timeLastEntered != 0 && GetWorld()->GetTimeSeconds() - _timeLastEntered > _openTime)
-		CloseDoor();	
-}
-
-void UMoveDoor::OpenDoor()
-{	
-	owner->SetActorRotation(FRotator(0.f, _openAngle, 0.f));
-}
-
-void UMoveDoor::CloseDoor()
-{
-	owner->SetActorRotation(FRotator(0.f, 90.f, 0.f));
+		_onOpen.Broadcast();
+	
+	else
+		_onClose.Broadcast();
 }
 
 float UMoveDoor::GetTotalMassInTrigger()
@@ -55,7 +45,8 @@ float UMoveDoor::GetTotalMassInTrigger()
 
 	TArray<AActor*> objectsInTrigger;
 
-	_pressurePlate->GetOverlappingActors(OUT objectsInTrigger);
+	if(_pressurePlate)
+		_pressurePlate->GetOverlappingActors(OUT objectsInTrigger);
 
 	for (AActor* actor : objectsInTrigger)
 	{

@@ -32,14 +32,17 @@ void UMoveDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (GetTotalMassInTrigger() >= massThreshold)
+	if (InspectObjectsInTrigger() >= massThreshold && hasCorrectColor)
 		_onOpen.Broadcast();
 	
 	else
+	{
 		_onClose.Broadcast();
+		hasCorrectColor = false;
+	}
 }
 
-float UMoveDoor::GetTotalMassInTrigger()
+float UMoveDoor::InspectObjectsInTrigger()
 {
 	float totalMass = 0;
 
@@ -51,6 +54,10 @@ float UMoveDoor::GetTotalMassInTrigger()
 	for (AActor* actor : objectsInTrigger)
 	{
 		totalMass += actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+
+		if(actor->ActorHasTag(color)) 
+			hasCorrectColor = true;
+
 	}
 	
 	return totalMass;

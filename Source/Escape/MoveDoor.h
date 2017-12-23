@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Components/PrimitiveComponent.h"
+#include "GameFramework/Actor.h"
 #include "Engine/TriggerVolume.h"
 #include "MoveDoor.generated.h"
 
@@ -21,7 +22,7 @@ public:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	//return total mass inside the trigger in Kg
-	float GetTotalMassInTrigger();
+	float InspectObjectsInTrigger();
 
 private:
 	AActor* owner = nullptr;
@@ -32,6 +33,14 @@ private:
 	//minimum mass to trigger the door opening
 	UPROPERTY(EditAnywhere)
 		float massThreshold = 30;
+
+	//color item needed for the door to open
+	UPROPERTY(EditAnywhere)
+		FName color;
+
+	//set to true when at least one of the objects in the trigger is the right color
+	UPROPERTY(VisibleAnywhere)
+		bool hasCorrectColor = false;
 
 	UPROPERTY(BlueprintAssignable)
 		FDoorEvent _onOpen;

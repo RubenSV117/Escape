@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MoveDoor.h"
+#include "Grabber.h"
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 
@@ -25,21 +26,34 @@ void UMoveDoor::BeginPlay()
 
 	if (!_pressurePlate)
 		UE_LOG(LogTemp, Error, TEXT("%s does not have a trigger volume assigned"), *owner->GetName());
+
 }
 
 // Called every frame
 void UMoveDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	DetermineLockedState();
+}
+
+void UMoveDoor::DetermineLockedState()
+{
 
 	if (InspectObjectsInTrigger() >= massThreshold && hasCorrectColor)
-		_onOpen.Broadcast();
-	
+		unlocked = true;
+
 	else
-	{
-		_onClose.Broadcast();
-		hasCorrectColor = false;
-	}
+		unlocked = false;
+}
+
+void UMoveDoor::Open()
+{
+	onOpen.Broadcast();
+}
+
+void UMoveDoor::Close()
+{
+	onClose.Broadcast();
 }
 
 float UMoveDoor::InspectObjectsInTrigger()
@@ -53,10 +67,16 @@ float UMoveDoor::InspectObjectsInTrigger()
 
 	for (AActor* actor : objectsInTrigger)
 	{
-		totalMass += actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+		//ignore the player
+		if(actor->FindComponentByClass<UGrabber>())
+			continue;
 
-		if(actor->ActorHasTag(color)) 
+		totalMass += actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+		if(actor->ActorHasTag(_color)) 
 			hasCorrectColor = true;
+
+		else
+			hasCorrectColor = false;
 
 	}
 	

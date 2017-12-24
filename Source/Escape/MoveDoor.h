@@ -24,27 +24,41 @@ public:
 	//return total mass inside the trigger in Kg
 	float InspectObjectsInTrigger();
 
+	void DetermineLockedState();
+
+	void Open();
+
+	void Close();
+
+	//set to true when at least one of the objects in the trigger is the right color
+	UPROPERTY(VisibleAnywhere)
+		bool hasCorrectColor = false;
+
+	//minimum mass to trigger the door opening
+	UPROPERTY(EditAnywhere)
+		float massThreshold = 30;
+
+	//will be set to true if it has sufficient mass and the correctColor
+	UPROPERTY(VisibleAnywhere)
+		bool unlocked = false;
+
+	//event to trigger door opening
+	UPROPERTY(BlueprintAssignable)
+		FDoorEvent onOpen;
+
+	//event to trigger door closing
+	UPROPERTY(BlueprintAssignable)
+		FDoorEvent onClose;
+
 private:
 	AActor* owner = nullptr;
 
 	UPROPERTY(EditAnywhere)
 		ATriggerVolume* _pressurePlate = nullptr;
 
-	//minimum mass to trigger the door opening
-	UPROPERTY(EditAnywhere)
-		float massThreshold = 30;
-
 	//color item needed for the door to open
 	UPROPERTY(EditAnywhere)
-		FName color;
+		FName _color;
 
-	//set to true when at least one of the objects in the trigger is the right color
-	UPROPERTY(VisibleAnywhere)
-		bool hasCorrectColor = false;
 
-	UPROPERTY(BlueprintAssignable)
-		FDoorEvent _onOpen;
-
-	UPROPERTY(BlueprintAssignable)
-		FDoorEvent _onClose;
 };

@@ -97,7 +97,7 @@ void UGrabber::BindInput()
 	}
 
 	else
-		UE_LOG(LogTemp, Warning, TEXT("_inputComponent has not been set"));
+		UE_LOG(LogTemp, Error, TEXT("_inputComponent has not been set"));
 }
 
 FVector UGrabber::GetReachLineStart()

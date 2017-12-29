@@ -45,7 +45,6 @@ void UKeysCounter::openAllDoors()
 
 void UKeysCounter::closeAllDoors()
 {
-
 	for (AActor* door : _doorsInMap)
 	{
 		UMoveDoor* mDoor = door->FindComponentByClass<UMoveDoor>();
@@ -63,9 +62,9 @@ void UKeysCounter::CheckIfUnlocked()
 
 	for (AActor* door : _doorsInMap)
 	{
-		UMoveDoor* doorScript = door->FindComponentByClass<UMoveDoor>();
+		UMoveDoor* mDoor = door->FindComponentByClass<UMoveDoor>();
 
-		if (doorScript && !doorScript->unlocked)
+		if (mDoor && !mDoor->unlocked)
 			_allDoorsUnlocked = false;				
 	}
 }

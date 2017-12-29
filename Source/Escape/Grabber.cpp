@@ -29,23 +29,6 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 			_physicsHandle->SetTargetLocation(GetReachLineEnd());
 }
 
-//grabs an object within range if it has a physics body
-void UGrabber::Grab()
-{
-	FHitResult hitResult = GetFirstObjectHit();
-	AActor* actorHit = hitResult.GetActor();
-
-	if (actorHit)
-	{
-		UPrimitiveComponent* componentToGrab = hitResult.GetComponent(); //gets the mesh in this case
-		FVector grabLocation = componentToGrab->GetOwner()->GetActorLocation();
-		
-
-		if (_physicsHandle)
-			_physicsHandle->GrabComponent(componentToGrab, NAME_None, grabLocation, true);
-	}
-}
-
 //LineCasts and returns the first object hit with a physics body
 FHitResult UGrabber::GetFirstObjectHit()
 {
@@ -60,12 +43,28 @@ FHitResult UGrabber::GetFirstObjectHit()
 		OUT hitResult,
 		GetReachLineStart(),
 		GetReachLineEnd(),
-		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody), //only get the objects that have Simulate Physics checked
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody), //ObjectType, only get the objects that have Simulate Physics checked
 		traceParameters);
 
 	AActor* objectHit = hitResult.GetActor();
 
 	return hitResult;
+}
+
+//grabs an object if hit with the raycast and if it has a physics body
+void UGrabber::Grab()
+{
+	FHitResult hitResult = GetFirstObjectHit();
+	
+	if (hitResult.GetActor())
+	{
+		UPrimitiveComponent* componentToGrab = hitResult.GetComponent(); //gets the mesh in this case
+		FVector grabLocation = componentToGrab->GetOwner()->GetActorLocation();
+
+
+		if (_physicsHandle)
+			_physicsHandle->GrabComponent(componentToGrab, NAME_None, grabLocation, true);
+	}
 }
 
 //releases grabbed object
